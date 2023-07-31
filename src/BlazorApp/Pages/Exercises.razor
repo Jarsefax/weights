@@ -7,7 +7,7 @@
 <h1>Exercises</h1>
 
 <div class="grid">
-    <QuickGrid Items="@FilteredExercises">
+    <QuickGrid Items="@FilteredExercises"  Pagination="@pagination">
         <PropertyColumn Property="@(e => e.Name)" Sortable="true">
             <ColumnOptions>
                 <div class="search-box">

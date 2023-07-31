@@ -6,6 +6,68 @@
 
 <h3>MuscleGroups</h3>
 
+<div class="grid">
+    <QuickGrid Items="@FilteredItems" Pagination="@_pagination">
+        <PropertyColumn Property="@(mg => mg.Name)" Sortable="true">
+            <ColumnOptions>
+                <div class="search-box">
+                    <input type="search" autofocus @bind="_nameFilter" 
+                           @bind:event="oninput" placeholder="Muscle group name..." />
+                </div>
+            </ColumnOptions>
+        </PropertyColumn>
+        <PropertyColumn Title="Parent" Property="@(mg => mg.Parent != null ? mg.Parent.Name : string.Empty)" Sortable="true" />
+    </QuickGrid>
+</div>
+<Paginator Value="@_pagination" />
+
+
 @code {
+    IQueryable<MuscleGroup> _items = null!;
+    readonly PaginationState _pagination = new() { ItemsPerPage = 10 };
     
+    // ReSharper disable once FieldCanBeMadeReadOnly.Local
+    string? _nameFilter = null;
+    
+    protected override void OnInitialized()
+    {
+        _items = GetItems().AsQueryable();
+    }
+    
+    IQueryable<MuscleGroup> FilteredItems
+    {
+        get
+        {
+            var result = _items;
+            
+            if (!string.IsNullOrEmpty(_nameFilter))
+            {
+                result = result?.Where(c => 
+                    c.Name.Contains(_nameFilter, StringComparison.CurrentCultureIgnoreCase));
+            }
+
+            return result!;
+        }
+    }
+
+    MuscleGroup[] GetItems() => _source;
+    readonly MuscleGroup[] _source = {
+        new ("Arms"),
+        new ("Biceps", new MuscleGroup("Arms")),
+        new ("Chest"),
+        new ("Back"),
+        new ("Triceps", new MuscleGroup("Arms")),
+        new ("a"),
+        new ("b"),
+        new ("c"),
+        new ("d"),
+        new ("e"),
+        new ("f"),
+        new ("g"),
+        new ("h"),
+        new ("i"),
+        new ("j"),
+        new ("k"),
+        new ("l"),
+    };
 }
