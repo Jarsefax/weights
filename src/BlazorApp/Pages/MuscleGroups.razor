@@ -16,7 +16,15 @@
                 </div>
             </ColumnOptions>
         </PropertyColumn>
-        <PropertyColumn Title="Parent" Property="@(mg => mg.Parent != null ? mg.Parent.Name : string.Empty)" Sortable="true" />
+        <PropertyColumn Property="@(mg => mg.Parent != null ? mg.Parent.Name : string.Empty)"
+                        Title="Parent" Sortable="true">
+            <ColumnOptions>
+                <div class="search-box">
+                    <input type="search" autofocus @bind="_parentFilter" 
+                           @bind:event="oninput" placeholder="Parent name..." />
+                </div>
+            </ColumnOptions>
+        </PropertyColumn>
     </QuickGrid>
 </div>
 <Paginator Value="@_pagination" />
@@ -28,40 +36,55 @@
     
     // ReSharper disable once FieldCanBeMadeReadOnly.Local
     string? _nameFilter = null;
+    // ReSharper disable once FieldCanBeMadeReadOnly.Local
+    string? _parentFilter = null;
     
-    protected override void OnInitialized()
-    {
+    protected override void OnInitialized() {
         _items = GetItems().AsQueryable();
     }
     
-    IQueryable<MuscleGroup> FilteredItems
-    {
-        get
-        {
+    IQueryable<MuscleGroup> FilteredItems {
+        get {
             var result = _items;
             
-            if (!string.IsNullOrEmpty(_nameFilter))
-            {
-                result = result?.Where(c => 
-                    c.Name.Contains(_nameFilter, StringComparison.CurrentCultureIgnoreCase));
+            if (!string.IsNullOrEmpty(_nameFilter)) {
+                result = result.Where(muscleGroup => 
+                    muscleGroup.Name.Contains(_nameFilter, StringComparison.CurrentCultureIgnoreCase));
+            }
+            
+            if (!string.IsNullOrEmpty(_parentFilter)) {
+                result = result.Where(mg => MuscleGroupMatches(mg.Parent));
             }
 
-            return result!;
+            return result;
         }
+    }
+    
+    bool MuscleGroupMatches(MuscleGroup? mg) {
+        if (mg is null) return false;
+        
+        if (mg.Name.Contains(_parentFilter!, StringComparison.CurrentCultureIgnoreCase)) {
+            return true;
+        }
+        
+        return mg.Parent is not null && MuscleGroupMatches(mg.Parent);
     }
 
     MuscleGroup[] GetItems() => _source;
+    static MuscleGroup all = new("All");
+    static MuscleGroup arms = new("Arms", all);
     readonly MuscleGroup[] _source = {
-        new ("Arms"),
-        new ("Biceps", new MuscleGroup("Arms")),
-        new ("Chest"),
-        new ("Back"),
-        new ("Triceps", new MuscleGroup("Arms")),
-        new ("a"),
-        new ("b"),
-        new ("c"),
-        new ("d"),
-        new ("e"),
+        all,
+        arms,
+        new ("Biceps", arms),
+        new ("Chest", all),
+        new ("Back", all),
+        new ("Triceps", arms),
+        new ("a", all),
+        new ("b", all),
+        new ("c", all),
+        new ("d", all),
+        new ("e", all),
         new ("f"),
         new ("g"),
         new ("h"),

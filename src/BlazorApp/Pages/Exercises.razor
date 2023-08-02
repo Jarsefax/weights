@@ -46,19 +46,19 @@
             IQueryable<Exercise> result = _items!;
             
             if (!string.IsNullOrEmpty(_nameFilter)) {
-                result = result.Where(c => 
-                    c.Name.Contains(_nameFilter, StringComparison.CurrentCultureIgnoreCase));
+                result = result.Where(exercise => 
+                    exercise.Name.Contains(_nameFilter, StringComparison.CurrentCultureIgnoreCase));
             }
             
             if (!string.IsNullOrEmpty(_muscleGroupFilter)) {
-                result = result.Where(e => MuscleGroupMatch(e.MuscleGroup));
+                result = result.Where(exercise => MuscleGroupMatches(exercise.MuscleGroup));
             }
             
             return result;
         }
     }
 
-    bool MuscleGroupMatch(MuscleGroup? mg)
+    bool MuscleGroupMatches(MuscleGroup? mg)
     {
         if (mg is null) return false;
         
@@ -66,7 +66,7 @@
             return true;
         }
         
-        return mg.Parent is not null && MuscleGroupMatch(mg.Parent);
+        return mg.Parent is not null && MuscleGroupMatches(mg.Parent);
     }
     
     Exercise[] GetItems() => _source;
